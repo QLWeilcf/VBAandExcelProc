@@ -151,3 +151,137 @@ tempSheet.Range("A1").Resize(40, 20) = al
 Application.ScreenUpdating = True
 
 End Sub
+
+
+'---加载项的构建方式：----
+Option Explicit
+Dim WithEvents app As Application
+Dim WithEvents wkb As Workbook
+
+
+Private Sub Workbook_AddinInstall()
+
+  On Error Resume Next
+
+  '新建菜单
+
+  With Application.CommandBars(1).Controls.Add(Type:=msoControlPopup)
+
+    .Caption = "统计提取(&T)"
+
+    With .Controls.Add(Type:=msoControlButton)
+
+      .Caption = "学院统计"
+
+      .OnAction = "work"
+
+    End With
+    With .Controls.Add(Type:=msoControlButton)
+
+      .Caption = "学部统计"
+
+      .OnAction = "XueBu"
+
+    End With
+    
+
+  End With
+
+  '新建工具栏
+
+  With Application.CommandBars.Add(name:="myCmdbar")
+
+    .Position = msoBarTop
+
+    With .Controls.Add
+
+    .FaceId = 352
+
+    .Caption = "学院统计"
+
+    .OnAction = "xueyaunAnaly"
+
+    End With
+    With .Controls.Add
+
+    .FaceId = 352
+
+    .Caption = "学部统计"
+
+    .OnAction = "xuebuAnalysis"
+
+    End With
+    
+
+    .Visible = True
+
+  End With
+
+End Sub
+
+Private Sub Workbook_AddinUninstall()
+
+  On Error Resume Next
+
+  Dim ctl As CommandBarControl
+
+  '卸载工具栏和菜单
+
+  Application.CommandBars("myCmdbar").Delete
+
+  For Each ctl In Application.CommandBars(1).Controls
+
+    If ctl.Caption = "数据预处理(&T)" Then ctl.Delete
+
+  Next ctl
+
+End Sub
+
+
+Private Sub app_NewWorkbook(ByVal wb As Workbook)
+
+  Set wkb = wb
+
+End Sub
+
+Private Sub app_WorkbookOpen(ByVal wb As Workbook)
+
+  Set wkb = wb
+
+End Sub
+
+Private Sub app_WorkbookActivate(ByVal wb As Workbook)
+
+  Set wkb = wb
+
+End Sub
+
+Private Sub wkb_SheetSelectionChange(ByVal Sh As Object, ByVal Target As Range)
+'
+ Application.StatusBar = "你选择的区域:" & Replace(Target.Address, "$", "")
+
+End Sub
+
+Private Sub Workbook_Open()
+
+  '关联到Application
+
+  Set app = Application
+
+End Sub
+
+Property Let ActiveWkb(ByVal wk As Workbook)
+
+  Set wkb = wk
+
+End Property
+
+Private Sub Auto_Open()
+
+  ThisWorkbook.ActiveWkb = ActiveWorkbook
+
+End Sub
+
+
+' end 加载项
+
